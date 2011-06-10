@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.StringTokenizer;
 public class Driver {
+	
 	final int chunkSize = 65536;
 	final int maxPeers = 6;
 	final int maxFiles = 100;
@@ -9,8 +10,10 @@ public class Driver {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		// TODO Auto-generated method stub
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		peer = new Peer();
 		while(true){
@@ -28,8 +31,10 @@ public class Driver {
 	}
 	
 	public static void parseCommand(String command){
+
 		System.out.println("You sent in: " + command);
 		StringTokenizer st = new StringTokenizer(command, " ");
+
 	}
 
 }

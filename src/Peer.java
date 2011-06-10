@@ -1,5 +1,25 @@
 public class Peer {
+	
+	// Return codes
+	// This is a defined set of return codes.
+	// Using enum here is a bad idea, unless you spell out the values, since it is
+	// shared with code you don't write.
 
+	final int errOK             =  0; // Everything good
+	final int errUnknownWarning =  1; // Unknown warning
+	final int errUnknownFatal   = -2; // Unknown error
+	final int errCannotConnect  = -3; // Cannot connect to anything; fatal error
+	final int errNoPeersFound   = -4; // Cannot find any peer (e.g., no peers in a peer file); fatal
+	final int errPeerNotFound   =  5; // Cannot find some peer; warning, since others may be connectable
+	
+	
+    Peers peers;
+	
+    private enum State
+    {
+        connected, disconnected, unknown
+    }
+    
 	public int insert(String filename)
 	{
 		//Take string filename
