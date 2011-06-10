@@ -1,9 +1,6 @@
 
 public class Status {
 	
-	final int chunkSize = 65536;
-	final int maxPeers  = 6;
-	final int maxFiles  = 100;
 	
 	// This is very cheesy and very lazy, but the focus of this assignment
     // is not on dynamic containers but on the BT p2p file distribution
@@ -13,7 +10,7 @@ public class Status {
 	
 	// The fraction of the file present locally 
     // (= chunks on this peer/total number chunks in the file)
-	private double local[] = new double[maxFiles];
+	private double local[] = new double[Peer.maxFiles];
 	
 	// The fraction of the file present in the system 
     // (= chunks in the system/total number chunks in the file)
@@ -21,16 +18,16 @@ public class Status {
     // this is simply intended to find out if we have the whole file in
     // the system; given that a file must be added at a peer, think about why
     // this number would ever not be 1.)
-	private double system[] = new double[maxFiles];
+	private double system[] = new double[Peer.maxFiles];
 	
 	// Sum by chunk over all peers; the minimum of this number is the least 
     // replicated chunk, and thus represents the least level of replication
     // of the file
-	private int leastReplication[] = new int[maxFiles];
+	private int leastReplication[] = new int[Peer.maxFiles];
 	
 	// Sum all chunks in all peers; divide this by the number of chunks in the
     // file; this is the average level of replication of the file
-	private double weightedLeastReplication[] = new double[maxFiles];
+	private double weightedLeastReplication[] = new double[Peer.maxFiles];
 	
 	public int numberOfFiles()
 	{

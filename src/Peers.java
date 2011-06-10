@@ -1,10 +1,9 @@
 
 public class Peers {
 	
-	final int chunkSize = 65536;
-	final int maxPeers  = 6;
-	final int maxFiles  = 100;
-	
+    private int numPeers;
+    private Peer peers[] = new Peer[Peer.maxPeers];
+    
     public int initialize(String peersFile)
     {
     	
@@ -21,6 +20,5 @@ public class Peers {
     
     // You will likely want to add methods such as visit()
 
-    private int numPeers;
-    private Peer peers[] = new Peer[maxPeers];
+
 }

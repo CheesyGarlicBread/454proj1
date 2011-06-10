@@ -4,7 +4,6 @@ public class Peer {
 	// This is a defined set of return codes.
 	// Using enum here is a bad idea, unless you spell out the values, since it is
 	// shared with code you don't write.
-
 	final int errOK             =  0; // Everything good
 	final int errUnknownWarning =  1; // Unknown warning
 	final int errUnknownFatal   = -2; // Unknown error
@@ -12,8 +11,28 @@ public class Peer {
 	final int errNoPeersFound   = -4; // Cannot find any peer (e.g., no peers in a peer file); fatal
 	final int errPeerNotFound   =  5; // Cannot find some peer; warning, since others may be connectable
 	
+	final static int chunkSize = 65536;
+	final static int maxPeers = 6;
+	final static int maxFiles = 100;
 	
-    Peers peers;
+    private Peers peers;
+    private Status status;
+	
+	public Peers getPeers() {
+		return peers;
+	}
+
+	public void setPeers(Peers peers) {
+		this.peers = peers;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
 	
     private enum State
     {
