@@ -1,4 +1,4 @@
-public class Peer {
+public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
 	
 	// Return codes
 	// This is a defined set of return codes.
@@ -20,13 +20,17 @@ public class Peer {
 	private String ip;
 	private String port;
 	
-	public Peer(){
+	private enum State { connected, disconnected, unknown }
+	  
+	public Peer() throws java.rmi.RemoteException {
 		this("127.0.0.1","80");
 	}
 	
-	public Peer(String ip, String port){
+	public Peer(String ip, String port) throws java.rmi.RemoteException {
+		super();
 		this.ip = ip;
 		this.port = port;
+		
 	}
 	
 	public String getIp() {
@@ -60,12 +64,7 @@ public class Peer {
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
-    private enum State
-    {
-        connected, disconnected, unknown
-    }
-    
+	  
 	public int insert(String filename)
 	{
 		//Take string filename

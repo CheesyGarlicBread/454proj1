@@ -1,4 +1,5 @@
 import java.io.*;
+import java.rmi.*;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 public class Driver {
@@ -14,7 +15,11 @@ public class Driver {
 	{
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		peer = new Peer();
+		try{
+			peer = new Peer();
+		}catch(RemoteException e){
+			System.out.println("Remote connection issue.");			
+		}
 		//keep reading input
 		while(true){
 			System.out.println("\nPlease enter a command:");
