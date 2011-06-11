@@ -17,6 +17,33 @@ public class Peer {
 	
     private Peers peers;
     private Status status;
+	private String ip;
+	private String port;
+	
+	public Peer(){
+		this("127.0.0.1","80");
+	}
+	
+	public Peer(String ip, String port){
+		this.ip = ip;
+		this.port = port;
+	}
+	
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
 	
 	public Peers getPeers() {
 		return peers;

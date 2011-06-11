@@ -17,7 +17,7 @@ public class Driver {
 		peer = new Peer();
 		//keep reading input
 		while(true){
-			System.out.println("Please enter a command:");
+			System.out.println("\nPlease enter a command:");
 			try{
 				String input = br.readLine();
 				parseCommand(input);
