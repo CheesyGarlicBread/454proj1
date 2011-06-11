@@ -13,10 +13,12 @@ public class Driver {
 	 */
 	public static void main(String[] args)
 	{
-
+		System.out.println("Started Client");
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
 			peer = new Peer();
+			Thread t = new Thread(new PeerServer(peer));
+			t.start();
 		}catch(RemoteException e){
 			System.out.println("Remote connection issue.");			
 		}

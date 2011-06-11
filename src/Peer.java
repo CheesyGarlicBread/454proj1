@@ -1,4 +1,7 @@
 import java.io.*;
+import java.net.MalformedURLException;
+import java.rmi.*;
+import java.util.*;
 
 public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
 	
@@ -21,6 +24,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
     private Status status;
 	private String ip;
 	private String port;
+	private Vector<String> localFiles = new Vector<String>();
 	
 	private enum State { connected, disconnected, unknown }
 	  
@@ -93,6 +97,16 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int join(Peers peers)
 	{
+		try{
+			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:1099/PeerService");
+			System.out.println(newpeer.getIp());
+		}catch(RemoteException e){
+			
+		}catch(MalformedURLException e){
+			
+		}catch(NotBoundException e){
+			
+		}
 		/*
 		String filename1 = "c:\\tmp\\file.png";
 		FileInputStream fis = new FileInputStream(filename1);
