@@ -14,7 +14,6 @@ public class PeerServer implements Runnable{
 			 System.out.println("Ran into remote exception: " + e);
 		 }
 	}
-	
 		
 	public PeerServer(PeerInterface p){
 		pi = p;
