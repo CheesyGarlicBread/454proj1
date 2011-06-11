@@ -1,12 +1,7 @@
 import java.io.*;
 import java.rmi.*;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
-import com.sun.xml.internal.ws.client.Stub;
 public class Driver {
 	
 	
@@ -22,11 +17,8 @@ public class Driver {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
 			peer = new Peer();
-			
-			Thread t = new Thread(peer);
+			Thread t = new Thread(new PeerServer(peer));
 			t.start();
-			
-		    
 		}catch(RemoteException e){
 			System.out.println("Remote connection issue.");			
 		}

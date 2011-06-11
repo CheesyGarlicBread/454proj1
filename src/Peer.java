@@ -1,13 +1,9 @@
 import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.*;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.ExportException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public class Peer implements PeerInterface, Runnable{
+public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
 	
 	// Return codes
 	// This is a defined set of return codes.
@@ -40,7 +36,6 @@ public class Peer implements PeerInterface, Runnable{
 	
 	public Peer(String ip, String port) throws java.rmi.RemoteException {
 		super();
-		
 		this.ip = ip;
 		this.port = port;
 		
@@ -48,7 +43,6 @@ public class Peer implements PeerInterface, Runnable{
 	}
 	
 	public String getIp() {
-		System.out.println("fetching ip: " + ip);
 		return ip;
 	}
 
@@ -83,8 +77,7 @@ public class Peer implements PeerInterface, Runnable{
 	public int insert(String filename)
 	{	
 		try{
-			Registry reg = LocateRegistry.getRegistry("192.168.0.143");			
-			PeerInterface newpeer = (PeerInterface)reg.lookup("PeerService");
+			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:1099/PeerService");
 			byte[] fileData = newpeer.downloadFile(filename);
 			System.out.println(fileData);
 			File file = new File("hello.jpg");
@@ -154,13 +147,14 @@ public class Peer implements PeerInterface, Runnable{
 	public int join(Peers peers)
 	{		
 		try{
-			Registry reg = LocateRegistry.getRegistry("localhost");			
-			Peer newpeer = (Peer)reg.lookup("PeerService");
+			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:1099/PeerService");
 			System.out.println(newpeer.getIp());
 		}catch(RemoteException e){
-			System.out.println(e);
+			
+		}catch(MalformedURLException e){
+			
 		}catch(NotBoundException e){
-			System.out.println(e);
+			
 		}
 		/*
 		String filename1 = "c:\\tmp\\file.png";
@@ -206,22 +200,5 @@ public class Peer implements PeerInterface, Runnable{
 	public void updateFileList(String file) throws RemoteException {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public void run(){
-		 try {
-			 System.out.println("Starting Server");     
-			 PeerInterface stub = (PeerInterface) UnicastRemoteObject.exportObject(this,0);
-		     Registry registry = LocateRegistry.getRegistry();
-		   	 registry.bind("PeerService", stub);
-		   	 System.out.println("Server ready");
-		     
-		 } catch(ExportException e){
-			 System.out.println(e);
-		 } catch (RemoteException e){
-			System.out.println("Remote exception: " + e); 
-		 } catch(AlreadyBoundException e){
-	    	 System.out.println("Has already been bound: " + e);
-	     }
 	}
 }
