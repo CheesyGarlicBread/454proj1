@@ -1,3 +1,5 @@
+import java.io.*;
+
 public class Peer {
 	
 	// Return codes
@@ -92,6 +94,27 @@ public class Peer {
 	
 	public int join(Peers peers)
 	{
+		/*
+		String filename1 = "c:\\tmp\\file.png";
+		FileInputStream fis = new FileInputStream(filename1);
+	    int size = 1024;
+	    byte buffer[] = new byte[size];
+
+	    int count = 0;
+	    while (true) {
+	      int i = fis.read(buffer, 0, size);
+	      if (i == -1)
+	        break;
+	      String filename2 = "c:\\tmp\\filep.png";
+	      String filename = filename2 + count;
+	      FileOutputStream fos = new FileOutputStream(filename);
+	      fos.write(buffer, 0, i);
+	      fos.flush();
+	      fos.close();
+
+	      ++count;
+	    }*/
+	    
 		//Container is Peers
 		//Attempt to join set
 		//Push all local files
