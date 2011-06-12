@@ -1,5 +1,8 @@
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.*;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 public class Driver {
@@ -7,29 +10,48 @@ public class Driver {
 	
 	
 	private static Peer peer;
-	
+	private static PeerServer peerServer;
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args)
 	{
+		if(args.length < 1){
+			System.out.println("Didn't specify peers file");
+			System.exit(1);
+		}
 		System.out.println("Started Client");
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
-			peer = new Peer();
-			Thread t = new Thread(new PeerServer(peer));
+			String address = InetAddress.getLocalHost().getHostName();
+			peer = new Peer(address,"10042");
+			peer.getPeers().initialize(args[0]);
+			peerServer = new PeerServer(peer);
+			Thread t = new Thread(peerServer);
 			t.start();
 		}catch(RemoteException e){
 			System.out.println("Remote connection issue.");			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		//keep reading input
 		while(true){
 			System.out.println("\nPlease enter a command:");
+			System.out.println("\"join\" - Joins the set of configured peers.");
+			System.out.println("\"leave\" - Leaves the set of configured peers.");
+			System.out.println("\"insert <filepath>\" - Adds file to be shared across network.");
+			System.out.println("\"query\" - Returns the state of the files for local peer.");
+			System.out.print("> ");
 			try{
 				String input = br.readLine();
 				parseCommand(input);
 			}catch (IOException e){
 				System.out.println("IOException encountered.");
+				try {
+					UnicastRemoteObject.unexportObject(peerServer.getRegistry(), true);
+				} catch (NoSuchObjectException e1) {				
+				}
 				System.exit(1);
 			}
 			
@@ -100,5 +122,6 @@ public class Driver {
 			}
 		}
 	}
+	
 
 }

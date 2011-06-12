@@ -39,6 +39,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public Peer(String ip, String port) throws java.rmi.RemoteException {
 		super();
+		peers = new Peers();		
 		this.ip = ip;
 		this.port = port;
 	}
@@ -122,8 +123,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			Arrays.fill(newElement.block_complete, false);
 			downloadFile(newElement);
 		}
-		
-		
 		
 		
 		//Take string filename
@@ -274,7 +273,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		try
 		{
-			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:1099/PeerService");
+			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://192.168.0.43:1099/PeerService");
 			System.out.println(newpeer.getIp());
 		}catch(RemoteException e){
 			
@@ -328,4 +327,5 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		// TODO Auto-generated method stub
 		
 	}
+
 }

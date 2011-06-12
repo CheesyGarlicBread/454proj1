@@ -18,13 +18,16 @@ public class Peers {
 			String line;
 			while((line = br.readLine()) != null){
 				StringTokenizer st = new StringTokenizer(line, " ");
-				Peer p = new Peer(st.nextToken(),st.nextToken());
+				String ip = st.nextToken();
+				String port = st.nextToken();
+				Peer p = new Peer(ip, port);
 				peers.add(p);
 			}
 			
 			br.close();			
 		}catch(FileNotFoundException e){
 			System.out.println("File could not be found!");
+			System.exit(1);
 		}catch(IOException e){
 			System.out.println("An IOException has occurred.");		
 		}catch(NoSuchElementException e){
