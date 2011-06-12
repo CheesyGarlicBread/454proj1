@@ -3,6 +3,8 @@ import java.net.MalformedURLException;
 import java.rmi.*;
 import java.util.*;
 
+import javax.print.attribute.standard.DateTimeAtCreation;
+
 public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
 	
 	// Return codes
@@ -171,7 +173,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private int downloadFile(FileElement file)
 	{
 		//RandomAccessFile to write chunks to
-		File newfile = new File("test4.jpg");
+		File newfile = new File("test" + Calendar.getInstance().getTimeInMillis() + ".jpg");
 		RandomAccessFile output = null;
 		
 		try {
@@ -221,7 +223,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 						{
 							//Download this chunk
 							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
-
+							file.block_complete[i] = true;
+							
 							System.out.println(filebuffer);
 							System.out.println("Downloading Chunk: " + i);
 							
