@@ -4,6 +4,8 @@ import java.rmi.*;
 import java.sql.Date;
 import java.util.*;
 
+import javax.print.attribute.standard.DateTimeAtCreation;
+
 public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
 	
 	// Return codes
@@ -177,7 +179,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
 		File newfile = new File("test" + Calendar.getInstance().getTimeInMillis() + ".jpg");
-		
+
 		RandomAccessFile output = null;
 		
 		try {
@@ -230,7 +232,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 							System.out.println("Downloading file from: " + e.currentServer);
 
 							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
-
+							file.block_complete[i] = true;
+							
 							System.out.println(filebuffer);
 							System.out.println("Downloading Chunk: " + i);
 							
