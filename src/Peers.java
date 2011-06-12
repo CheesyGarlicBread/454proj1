@@ -43,6 +43,12 @@ public class Peers {
 		}
     	return 0;
     }
+
+	public Vector<Peer> getPeers() {
+		return peers;
+	}
+
+	
     	
     
     //Peer operator()(int i);
