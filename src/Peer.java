@@ -162,6 +162,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				if (e.block_complete[i] == false)
 				{
 					downloadFile(e);
+					
 				}
 			}
 		}
@@ -169,6 +170,15 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private int downloadFile(FileElement file)
 	{
+		//RandomAccessFile to write chunks to
+		File newfile = new File("test4.jpg");
+		RandomAccessFile output = null;
+		
+		try {
+			output = new RandomAccessFile(newfile, "rw");
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
 		
 		System.out.println("downloadFile()");
 		//Check availability of chunks
@@ -190,6 +200,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			}
 		}
 
+		//Chunk buffer for downloaded data
+		byte[] filebuffer = null;
+		
 		int lowestnum = 1;
 		
 		//Number of copies available can range between 0 and 6
@@ -207,7 +220,17 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 						if (e.block_complete[i] == true)
 						{
 							//Download this chunk
-							downloadFileChunk(file, i, chunkSize, e.currentServer);
+							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
+
+							System.out.println(filebuffer);
+							System.out.println("Downloading Chunk: " + i);
+							
+							try {
+								output.seek(i);
+								output.write(filebuffer);
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
@@ -215,6 +238,12 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			lowestnum++;
 		}
 		
+		
+		try {
+			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.out.println("Finished downloadFile()");
 		return 0;
 		
@@ -291,7 +320,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				
 				for(FileElement e : tmpList)
 				{
-					if (e.filename == filename)
+					if (e.filename.equals(filename))
 					{
 						remoteList.add(e);
 					}
