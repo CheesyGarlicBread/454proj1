@@ -356,7 +356,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			PeerInterface newpeer = (PeerInterface)Naming.lookup(server);
 			
 			//Chunk buffer for downloaded data
-			 filebuffer = newpeer.uploadFileChunk(file.filename, chunkID, chunkSize);
+			 filebuffer = newpeer.uploadFileChunk(file.filename, chunkID*chunkSize, chunkSize);
 		
 		}catch(RemoteException e){
 			System.out.println(e);
