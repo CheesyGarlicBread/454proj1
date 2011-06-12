@@ -27,6 +27,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private String port;
 	private Vector<String> localFiles = new Vector<String>();
 	
+	
 	private LinkedList<FileElement> localList = new LinkedList<FileElement>();
 	
 	private enum State { connected, disconnected, unknown }
@@ -95,7 +96,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	public int insert(String filename)
 	{	
 		File file = new File(filename);
-		FileElement newElement = new FileElement(filename, file.length(), chunkSize);
+		FileElement newElement = new FileElement(filename, file.length(), chunkSize, "rmi://"+this.getIp()+":"+this.getPort()+"/PeerService");
 		
 		//If localFiles vector already contains the filename, error out
 		if ((localFiles.contains(filename)) || (localList.contains(newElement)))
@@ -144,8 +145,75 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return 0;
 	}
 	
+	private void downloadFiles()
+	{
+		//If there is at least one missing chunk from the file 'e', attempt to download file 'e'
+		for (FileElement e : localList)
+		{
+			for (int i = 0; i < e.block_complete.length; i++)
+			{
+				if (e.block_complete[i] == false)
+				{
+					downloadFile(e);
+				}
+			}
+		}
+	}
+	
 	private int downloadFile(FileElement file)
 	{
+		
+		//Check availability of chunks
+			//For lowest available chunk
+				//Search peer list for a copy of that chunk
+					//Download that chunk downloadFileChunk()
+		
+		//List of existings peers
+		Vector<Peer> peerList = peers.getPeers();
+		
+		//Create a linked list of FileElements from all peers
+		LinkedList<FileElement> remoteList = searchPeersForFile(file.filename);
+		
+		//For each chunk of the local file
+		for (int i = 0; i < file.block_available.length; i++)
+		{
+			//For each copy of the file on a remote peer
+			for (FileElement e : remoteList)
+			{
+				//Incriment block_availability on local file
+				if(e.block_complete[i] == true)
+				{
+					file.block_available[i]++;
+				}
+			}
+		}
+
+		int lowestnum = 1;
+		
+		//Number of copies available can range between 0 and 6
+		for (int j = 0; j <= maxPeers; j++)
+		{
+			//For each chunk of the file
+			for (int i = 0; i < file.block_available.length; i++)
+			{
+				if((file.block_available[i] == lowestnum) && (file.block_complete[i] == false))
+				{
+					for (FileElement e : remoteList)
+					{
+						if (e.block_complete[i] == true)
+						{
+							//Download this chunk
+							downloadFileChunk(file, i, chunkSize, e.currentServer);
+						}
+					}
+				}
+			}
+			lowestnum++;
+		}
+		
+		return 0;
+		
+		/*
 		String server = "rmi://localhost:10042/PeerService";
 		try
 		{
@@ -196,7 +264,42 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			System.out.println(e);
 		}
 		
-		return 0;
+		return 0;*/
+	}
+	
+	//Returns a link list of the FileElements from all peers
+	private LinkedList<FileElement> searchPeersForFile(String filename)
+	{
+		LinkedList<FileElement> remoteList = new LinkedList<FileElement>();
+		
+		//List of existings peers
+		Vector<Peer> peerList = peers.getPeers();
+
+		for (Peer p : peerList)
+		{
+			try
+			{
+				PeerInterface peer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
+				
+				LinkedList<FileElement> tmpList = peer.returnList();
+				
+				for(FileElement e : tmpList)
+				{
+					if (e.filename == filename)
+					{
+						remoteList.add(e);
+					}
+				}
+			}catch(RemoteException e){
+				System.out.println(e);
+			}catch(MalformedURLException e){
+				System.out.println(e);
+			}catch(NotBoundException e){
+				System.out.println(e);
+			}
+		}
+		
+		return remoteList;
 	}
 	
 	private byte[] downloadFileChunk(FileElement file, int chunkID, int chunkSize, String server)
@@ -282,32 +385,22 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int join(Peers peers)
 	{
+		//List of existings peers
+		Vector<Peer> peerList = peers.getPeers();
+		
 		try
 		{
 			//Search through all peers
-			//for (peer e : Peers)
-			//{
-				PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:10042/PeerService");
+			//Add all external file frames to localList and localFiles
+			for (Peer p : peerList)
+			{
+				PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
 				System.out.println(newpeer.getIp());
 				
 				LinkedList<FileElement> tmpList = newpeer.returnList();
-				
-				for (FileElement e : tmpList)
-				{
-					if (localFiles.contains(e.filename))
-					{
-						//Already have this filename
-						downloadFile(e);
-					}
-					else
-					{
-						//Insert FileElement object into linkedlist
-						Arrays.fill(e.block_complete, false);
-						localList.add(e);
-						downloadFile(e);
-					}
-				}
-			//}
+				getNewFileFrames(tmpList);
+				downloadFiles();
+			}
 
 		}catch(RemoteException e){
 			
@@ -324,6 +417,26 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//Push all local files
 		//Pull all files that don't exist in set
 		return 0;
+	}
+	
+	private void getNewFileFrames(LinkedList<FileElement> tmpList)
+	{
+		for (FileElement e : tmpList)
+		{
+			if (localFiles.contains(e.filename))
+			{
+				//Already have this filename
+				//downloadFile(e);
+			}
+			else
+			{
+				//Insert FileElement object into linkedlist and filename vector
+				Arrays.fill(e.block_complete, false);
+				Arrays.fill(e.block_available, 0);
+				localList.add(e);
+				localFiles.add(e.filename);
+			}
+		}
 	}
 	
 	public int leave()
