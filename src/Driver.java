@@ -28,8 +28,7 @@ public class Driver {
 			peer = new Peer(address,args[1]);
 			peer.getPeers().initialize(args[0], args[1]);
 			peerServer = new PeerServer(peer);
-			Thread t = new Thread(peerServer);
-			t.start();
+			
 		}catch(RemoteException e){
 			System.out.println("Remote connection issue.");			
 		} catch (UnknownHostException e) {
@@ -77,7 +76,7 @@ public class Driver {
 					System.out.println("No filename specified");
 				}
 			}else if(c.equals("query")){
-				returnCode = peer.query(peer.getStatus());
+				returnCode = peer.query();			
 			}else if(c.equals("join")){
 				returnCode = peer.join(peer.getPeers());
 			}else if(c.equals("leave")){

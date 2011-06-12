@@ -18,8 +18,7 @@ public class Peers {
 			BufferedReader br = new BufferedReader(new FileReader(peersFile));
 			String line;
 			String localaddress = InetAddress.getLocalHost().getHostAddress();
-			String localhostname = InetAddress.getLocalHost().getHostName();
-			System.out.println(localhostname);
+			String localhostname = InetAddress.getLocalHost().getHostName();		
 			while((line = br.readLine()) != null){
 				StringTokenizer st = new StringTokenizer(line, " ");
 				String ip = st.nextToken();
@@ -36,9 +35,11 @@ public class Peers {
 			System.out.println("File could not be found!");
 			System.exit(1);
 		}catch(IOException e){
-			System.out.println("An IOException has occurred.");		
+			System.out.println("An IOException has occurred.");	
+			System.exit(1);
 		}catch(NoSuchElementException e){
 			System.out.println("Incorrectly formatted file");
+			System.exit(1);
 		}
     	return 0;
     }

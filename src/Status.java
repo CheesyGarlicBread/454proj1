@@ -48,5 +48,12 @@ public class Status {
 	public double averageReplicationLevel(int fileNumber)
 	{
 		return 0;
-	}	
+	}
+	
+	public String toString(){
+		String temp = "I am status";
+		
+		return temp;
+	
+	}
 }

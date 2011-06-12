@@ -39,9 +39,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public Peer(String ip, String port) throws java.rmi.RemoteException {
 		super();
-		peers = new Peers();		
+		this.status = new Status();
+		this.peers = new Peers();		
 		this.ip = ip;
 		this.port = port;
+		this.state = State.disconnected;
 	}
 	
 	public String getIp() {
@@ -265,13 +267,14 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return (int)file.length();
 	}
 	
-	public int query(Status status)
+	public int query()
 	{
 		//Populate parameter status with details for each file
 		//1. The fraction of the file that is available locally
 		//2. The fraction of the file that is available in the system
 		//3. The least replication level
 		//4. The weighted least-replication level
+		System.out.println(status.toString());
 		return 0;
 	}
 	
@@ -317,8 +320,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			
 		}
 	    
-		//Container is Peers
+		
+		//set state to connected
 		this.state = State.connected;
+		
+		//let everyone know that you've connected
 		
 		//Attempt to join set
 		//Push all local files
@@ -328,6 +334,12 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int leave()
 	{
+		//set state
+		this.state = State.disconnected;
+		
+		//let everyone know you're leaving
+		
+		
 		//Leave set of peers
 		//Close socket connections
 		//Inform peers that it is leaving

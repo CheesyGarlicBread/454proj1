@@ -3,22 +3,10 @@ import java.rmi.*;
 import java.rmi.registry.Registry;
 
 
-public class PeerServer implements Runnable{
+public class PeerServer{
 	private PeerInterface pi;
 	private Registry registry; 
-	public void run(){
-		 try {
-			 System.out.println("Starting Server " + pi.getIp() + " on port: " + pi.getPort());
-			 
-			 registry = java.rmi.registry.LocateRegistry.createRegistry(Integer.parseInt(pi.getPort()));
-			 
-		     Naming.rebind("rmi://"+pi.getIp()+":"+pi.getPort()+"/PeerService", pi);
-		 } catch (MalformedURLException e) {
-		     System.out.println("Malformed URL: " + e);
-		 } catch (RemoteException e){
-			 System.out.println("Ran into remote exception: " + e);
-		 } 
-	}
+
 		
 	public PeerInterface getPi() {
 		return pi;
@@ -38,6 +26,17 @@ public class PeerServer implements Runnable{
 
 	public PeerServer(PeerInterface p){
 		pi = p;
+		try {
+			System.out.println("Starting Server " + pi.getIp() + " on port: " + pi.getPort());
+			 
+			registry = java.rmi.registry.LocateRegistry.createRegistry(Integer.parseInt(pi.getPort()));
+			 
+		    Naming.rebind("rmi://"+pi.getIp()+":"+pi.getPort()+"/PeerService", pi);
+		} catch (MalformedURLException e) {
+		    System.out.println("Malformed URL: " + e);
+		} catch (RemoteException e){
+			System.out.println("Ran into remote exception: " + e);
+		}
 	}
 	
 }
