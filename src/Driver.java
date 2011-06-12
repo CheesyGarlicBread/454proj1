@@ -16,16 +16,17 @@ public class Driver {
 	 */
 	public static void main(String[] args)
 	{
-		if(args.length < 1){
-			System.out.println("Didn't specify peers file");
+		if(args.length < 2){
+			System.out.println("Didn't specify peers file or port");
+			System.out.println("Arguments specification: <peersfile> <port #>");
 			System.exit(1);
 		}
 		System.out.println("Started Client");
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
-			String address = InetAddress.getLocalHost().getHostName();
-			peer = new Peer(address,"10042");
-			peer.getPeers().initialize(args[0]);
+			String address = InetAddress.getLocalHost().getHostAddress();
+			peer = new Peer(address,args[1]);
+			peer.getPeers().initialize(args[0], args[1]);
 			peerServer = new PeerServer(peer);
 			Thread t = new Thread(peerServer);
 			t.start();

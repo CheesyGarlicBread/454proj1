@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.util.*;
 
 public class Peers {
@@ -11,17 +12,23 @@ public class Peers {
     // This file should be available on every machine on which a peer is started,
     // though you should exit gracefully if it is absent or incorrectly formatted.
     // After execution of this method, the _peers should be present.
-    public int initialize(String peersFile)
+    public int initialize(String peersFile, String localport)
     {
     	try{
 			BufferedReader br = new BufferedReader(new FileReader(peersFile));
 			String line;
+			String localaddress = InetAddress.getLocalHost().getHostAddress();
+			String localhostname = InetAddress.getLocalHost().getHostName();
+			System.out.println(localhostname);
 			while((line = br.readLine()) != null){
 				StringTokenizer st = new StringTokenizer(line, " ");
 				String ip = st.nextToken();
 				String port = st.nextToken();
-				Peer p = new Peer(ip, port);
-				peers.add(p);
+				if(!((localaddress.equals(ip) || localhostname.equals(ip)) && localport.equals(port))){
+					System.out.println("added peer to peer list: " + ip + " with port " + port);
+					Peer p = new Peer(ip, port);
+					peers.add(p);
+				}
 			}
 			
 			br.close();			
