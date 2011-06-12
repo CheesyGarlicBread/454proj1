@@ -80,23 +80,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
-	private void updateFileList()
-	{
-		/*
-		String server;
-		for (int i = 0; i < peers.peers.size(); i++)
-		{
-			//Connect to remote host
-			PeerInterface newpeer = (PeerInterface)Naming.lookup(server);
-			
-			//Get file size from remote host
-			int filesize = newpeer.filesize(filename);
 		
-		}
-		*/
-	}
-	
 	public int insert(String filename)
 	{	
 		File file = new File(filename);
@@ -136,6 +120,17 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			downloadFile(newElement);
 		}
 
+		//List of existings peers
+		Vector<Peer> peerList = peers.getPeers();
+		
+		for (Peer p : peerList)
+		{
+			try {
+				p.updateFileList();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		//Take string filename
 		//Add to local peer
@@ -431,33 +426,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				Vector<Peer> peerList = peers.getPeers();
-				try
-				{
-					
-					//Search through all peers
-					//Add all external file frames to localList and localFiles
-					for (Peer p : peerList)
-					{
-						PeerInterface newpeer = null;
-						try{
-							newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
-							System.out.println("IP: " + newpeer.getIp());
-							
-							LinkedList<FileElement> tmpList = newpeer.returnList();
-							getNewFileFrames(tmpList);
-							downloadFiles();
-						}catch(RemoteException e){
-							
-						}
-						
-					}
-				
-				}catch(MalformedURLException e){
-					
-				}catch(NotBoundException e){
-					
+				try {
+					updateFileList();
+				} catch (RemoteException e) {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -512,9 +484,34 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return 0;
 	}
 
-	@Override
-	public void updateFileList(String file) throws RemoteException {
-		// TODO Auto-generated method stub
+	public void updateFileList() throws RemoteException
+	{
+		Vector<Peer> peerList = peers.getPeers();
+		try
+		{
+			//Search through all peers
+			//Add all external file frames to localList and localFiles
+			for (Peer p : peerList)
+			{
+				PeerInterface newpeer = null;
+				try{
+					newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
+					System.out.println("IP: " + newpeer.getIp());
+					
+					LinkedList<FileElement> tmpList = newpeer.returnList();
+					getNewFileFrames(tmpList);
+					downloadFiles();
+				}catch(RemoteException e){
+					
+				}
+				
+			}
+		
+		}catch(MalformedURLException e){
+			
+		}catch(NotBoundException e){
+			
+		}
 		
 	}
 
