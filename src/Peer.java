@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.*;
+import java.sql.Date;
 import java.util.*;
 
 public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInterface{
@@ -175,7 +176,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
-		File newfile = new File("test4.jpg");
+		File newfile = new File("test" + Calendar.getInstance().getTimeInMillis() + ".jpg");
+		
 		RandomAccessFile output = null;
 		
 		try {
