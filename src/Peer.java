@@ -17,7 +17,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	final int errPeerNotFound   =  5; // Cannot find some peer; warning, since others may be connectable
 	
 	//final static int chunkSize = 65536;
-	final static int chunkSize = 8;
+	final static int chunkSize = 65536;
 	final static int maxPeers = 6;
 	final static int maxFiles = 100;
 	
@@ -134,14 +134,15 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			int currentChunk = 0;
 			
 			//Download byte array from remote host
-			for(int i = 0; i < ((filesize / chunkSize)); i++)
+			for(int i = 0; i < (Math.ceil(filesize / chunkSize) + 1); i++)
 			{
-				filebuffer = newpeer.downloadFile(filename, currentChunk, chunkSize);
+				filebuffer = newpeer.uploadFileChunk(filename, currentChunk, chunkSize);
 				System.out.println(filebuffer);
 				
-				//Copy the chunk intoo the main buffer
+				//Copy the chunk into the main buffer
 				for (int j = 0; j < chunkSize; j++)
 				{
+					if((j+currentChunk) > (filesize-1)) break;
 					bytefile[currentChunk+j] = filebuffer[j];
 				}
 				
@@ -183,16 +184,26 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			File file = new File(filename);
 			byte buffer[] = new byte[length];
 			
+			/*
 			//Read file data into buffer
 			BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-			input.read(buffer,offset,length);
-	
-			input.close();			
+			//input.read(buffer,offset,length);
+			input.close();
+			*/
+			
+			RandomAccessFile input = new RandomAccessFile(file,"r");
+			input.seek(offset);
+			if ((offset+length) > file.length()){
+				input.readFully(buffer,0,(int)(file.length()-offset));
+			}
+			else{
+				input.readFully(buffer, 0, length);
+			}
 			
 			//Return byte buffer to caller
 			return (buffer);
 		} catch(Exception e){
-			System.out.println("FileImpl: "+e.getMessage());
+			System.out.println("FileImpl: "+e);
 		}
 		return null;
 	}
