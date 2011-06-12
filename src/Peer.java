@@ -124,7 +124,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			//TEMPORARY, DELETE THIS LINE
 			//################AAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHH
 			System.out.println("Downloading file anyway, just cause'");
-			downloadFile(newElement);
+			//downloadFile(newElement);
 		}
 		else
 		{
@@ -150,10 +150,13 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private void downloadFiles()
 	{
 		System.out.println("downloadFiles()");
+		
 		//If there is at least one missing chunk from the file 'e', attempt to download file 'e'
 		for (FileElement e : localList)
 		{
-			System.out.println("Looking for " + e.filename);
+			e.remoteList = searchPeersForFile(e.filename);
+			
+			System.out.println("Checking " + e.filename + " file for local completeness");
 			for (int i = 0; i < e.block_complete.length; i++)
 			{
 				if (e.block_complete[i] == false)
@@ -173,17 +176,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				//Search peer list for a copy of that chunk
 					//Download that chunk downloadFileChunk()
 		
-		//List of existings peers
-		Vector<Peer> peerList = peers.getPeers();
-		
-		//Create a linked list of FileElements from all peers
-		LinkedList<FileElement> remoteList = searchPeersForFile(file.filename);
-		
 		//For each chunk of the local file
 		for (int i = 0; i < file.block_available.length; i++)
 		{
 			//For each copy of the file on a remote peer
-			for (FileElement e : remoteList)
+			for (FileElement e : file.remoteList)
 			{
 				//Incriment block_availability on local file
 				if(e.block_complete[i] == true)
@@ -201,9 +198,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			//For each chunk of the file
 			for (int i = 0; i < file.block_available.length; i++)
 			{
+				//Download chunk if the chunk has a low availability and is not complete locally
 				if((file.block_available[i] == lowestnum) && (file.block_complete[i] == false))
 				{
-					for (FileElement e : remoteList)
+					//Find a server that has this particular chunk
+					for (FileElement e : file.remoteList)
 					{
 						if (e.block_complete[i] == true)
 						{
