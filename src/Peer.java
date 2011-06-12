@@ -233,7 +233,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 							System.out.println("Downloading Chunk: " + i);
 							
 							try {
-								output.seek(i);
+								output.seek(i*chunkSize);
 								output.write(filebuffer);
 							} catch (IOException e1) {
 								e1.printStackTrace();
