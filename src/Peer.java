@@ -161,7 +161,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			{
 				if (e.block_complete[i] == false)
 				{
+					System.out.println(e.currentServer);
 					downloadFile(e);
+					break;
 				}
 			}
 		}
@@ -207,6 +209,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 						if (e.block_complete[i] == true)
 						{
 							//Download this chunk
+							System.out.println("Downloading file from: " + e.currentServer);
 							downloadFileChunk(file, i, chunkSize, e.currentServer);
 						}
 					}
@@ -291,7 +294,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				
 				for(FileElement e : tmpList)
 				{
-					if (e.filename == filename)
+					if (e.filename.equals(filename))
 					{
 						remoteList.add(e);
 					}
