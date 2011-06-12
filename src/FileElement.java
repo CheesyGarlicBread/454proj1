@@ -1,13 +1,16 @@
+import java.io.Serializable;
 
-public class FileElement {
-	
+public class FileElement implements Serializable
+{
+	private static final long serialVersionUID = 1L;
 	public String filename;
 	public long filesize;
-	public boolean[] block_complete ;
+	public boolean[] block_complete;
+	
 
-	public FileElement(String filename2, long length, int chunkSize) {
+	public FileElement(String filename, long length, int chunkSize) {
 		this.filename = filename;
-		this.filesize = filesize;
-		this.block_complete = new boolean[(int) (Math.ceil(filesize / chunkSize) + 1)];
+		this.filesize = length;
+		this.block_complete = new boolean[(int) (Math.ceil(length / chunkSize) + 1)];
 	}
 }

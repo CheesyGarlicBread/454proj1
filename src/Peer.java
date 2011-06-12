@@ -27,7 +27,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private String port;
 	private Vector<String> localFiles = new Vector<String>();
 	
-	private LinkedList<FileElement> localList = new LinkedList();
+	private LinkedList<FileElement> localList = new LinkedList<FileElement>();
 	
 	private enum State { connected, disconnected, unknown }
 	
@@ -114,11 +114,18 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//else fill block_complete with false and begin download
 		if (file.exists())
 		{
+			System.out.println("File exists locally. Adding to local list.");
 			//Fill the block_complete array since the file is local and complete
 			Arrays.fill(newElement.block_complete, true);
+			
+			//TEMPORARY, DELETE THIS LINE
+			//################AAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHH
+			System.out.println("Downloading file anyway, just cause'");
+			downloadFile(newElement);
 		}
 		else
 		{
+			System.out.println("File does not exist locally. Beginning download.");
 			//Fill the block_complete array since the file is local and complete
 			Arrays.fill(newElement.block_complete, false);
 			downloadFile(newElement);
@@ -139,7 +146,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private int downloadFile(FileElement file)
 	{
-		String server = "rmi://localhost:1099/PeerService";
+		String server = "rmi://localhost:10042/PeerService";
 		try
 		{
 			//Connect to remote host
@@ -149,7 +156,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			byte bytefile[] = new byte[(int) file.filesize];
 			
 			//Chunk buffer for downloaded data
-			byte[] filebuffer;
+			byte[] filebuffer = null;
+			
+			//RandomAccessFile to write chunks to
+			File newfile = new File("test4.jpg");
+			RandomAccessFile output = new RandomAccessFile(newfile, "rw");
 			
 			//Track current chunk location, incriment by 'chunkSize' in while loop below
 			int currentChunk = 0;
@@ -157,65 +168,60 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			//Download byte array from remote host
 			for(int i = 0; i < (Math.ceil(file.filesize / chunkSize) + 1); i++)
 			{
-				filebuffer = newpeer.uploadFileChunk(file.filename, currentChunk, chunkSize);
+				filebuffer = downloadFileChunk(file, currentChunk, chunkSize, server);
 				System.out.println(filebuffer);
+				System.out.println("Downloading Chunk: " + currentChunk);
 				
-				//Copy the chunk into the main buffer
-				for (int j = 0; j < chunkSize; j++)
-				{
-					if((j+currentChunk) > (file.filesize-1)) break;
-					bytefile[currentChunk+j] = filebuffer[j];
-				}
+				output.seek(currentChunk);
+				output.write(filebuffer);
+				
 				
 				//Increment to next chunk
 				currentChunk += chunkSize;
-			}
-			
-			//Write buffer byte data to new file locally
-			File file = new File("hello.jpg");
-			BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file.getName()));
-			output.write(bytefile,0,bytefile.length);
-
-			output.flush();
+			}	
+		
 			output.close();
 			
 			System.out.println("File write complete.");
-			
-			}catch(RemoteException e){
-				System.out.println(e);
-			}catch(MalformedURLException e){
-				System.out.println(e);
-			}catch(NotBoundException e){
-				System.out.println(e);
-			}catch(FileNotFoundException e){
-				System.out.println(e);
-			}catch (IOException e){
-				System.out.println(e);
-			}
+		
+		}catch(RemoteException e){
+			System.out.println(e);
+		}catch(MalformedURLException e){
+			System.out.println(e);
+		}catch(NotBoundException e){
+			System.out.println(e);
+		}catch(FileNotFoundException e){
+			System.out.println(e);
+		}catch (IOException e){
+			System.out.println(e);
+		}
 		
 		return 0;
 	}
 	
 	private byte[] downloadFileChunk(FileElement file, int chunkID, int chunkSize, String server)
 	{
-		try {
-		//Connect to remote host
-		PeerInterface newpeer = (PeerInterface)Naming.lookup(server);
+		byte[] filebuffer = null;
 		
-		//Chunk buffer for downloaded data
-		byte[] filebuffer;
-		filebuffer = newpeer.uploadFileChunk(file.filename, chunkID, chunkSize);
+		try
+		{
+			//Connect to remote host
+			PeerInterface newpeer = (PeerInterface)Naming.lookup(server);
+			
+			//Chunk buffer for downloaded data
+			 filebuffer = newpeer.uploadFileChunk(file.filename, chunkID, chunkSize);
 		
-	}catch(RemoteException e){
-		System.out.println(e);
-	}catch(MalformedURLException e){
-		System.out.println(e);
-	}catch(NotBoundException e){
-		System.out.println(e);
-	}catch (IOException e){
-		System.out.println(e);
-	}
-		return null;
+		}catch(RemoteException e){
+			System.out.println(e);
+		}catch(MalformedURLException e){
+			System.out.println(e);
+		}catch(NotBoundException e){
+			System.out.println(e);
+		}catch (IOException e){
+			System.out.println(e);
+		}
+		
+		return filebuffer;
 	}
 	
 	public byte[] uploadFileChunk(String filename, int offset, int length)
@@ -269,12 +275,39 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return 0;
 	}
 	
+	public LinkedList<FileElement> returnList()
+	{
+		return localList;
+	}
+	
 	public int join(Peers peers)
 	{
 		try
 		{
-			PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://192.168.0.43:1099/PeerService");
-			System.out.println(newpeer.getIp());
+			//Search through all peers
+			//for (peer e : Peers)
+			//{
+				PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://localhost:10042/PeerService");
+				System.out.println(newpeer.getIp());
+				
+				LinkedList<FileElement> tmpList = newpeer.returnList();
+				
+				for (FileElement e : tmpList)
+				{
+					if (localFiles.contains(e.filename))
+					{
+						//Already have this filename
+						downloadFile(e);
+					}
+					else
+					{
+						//Insert FileElement object into linkedlist
+						Arrays.fill(e.block_complete, false);
+						localList.add(e);
+						downloadFile(e);
+					}
+				}
+			//}
 		}catch(RemoteException e){
 			
 		}catch(MalformedURLException e){
@@ -282,26 +315,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		}catch(NotBoundException e){
 			
 		}
-		/*
-		String filename1 = "c:\\tmp\\file.png";
-		FileInputStream fis = new FileInputStream(filename1);
-	    int size = 1024;
-	    byte buffer[] = new byte[size];
-
-	    int count = 0;
-	    while (true) {
-	      int i = fis.read(buffer, 0, size);
-	      if (i == -1)
-	        break;
-	      String filename2 = "c:\\tmp\\filep.png";
-	      String filename = filename2 + count;
-	      FileOutputStream fos = new FileOutputStream(filename);
-	      fos.write(buffer, 0, i);
-	      fos.flush();
-	      fos.close();
-
-	      ++count;
-	    }*/
 	    
 		//Container is Peers
 		this.state = State.connected;
