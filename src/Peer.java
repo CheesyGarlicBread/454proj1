@@ -149,9 +149,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private void downloadFiles()
 	{
+		System.out.println("downloadFiles()");
 		//If there is at least one missing chunk from the file 'e', attempt to download file 'e'
 		for (FileElement e : localList)
 		{
+			System.out.println("Looking for " + e.filename);
 			for (int i = 0; i < e.block_complete.length; i++)
 			{
 				if (e.block_complete[i] == false)
@@ -165,6 +167,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private int downloadFile(FileElement file)
 	{
 		
+		System.out.println("downloadFile()");
 		//Check availability of chunks
 			//For lowest available chunk
 				//Search peer list for a copy of that chunk
@@ -213,6 +216,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			lowestnum++;
 		}
 		
+		System.out.println("Finished downloadFile()");
 		return 0;
 		
 		/*
@@ -272,6 +276,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	//Returns a link list of the FileElements from all peers
 	private LinkedList<FileElement> searchPeersForFile(String filename)
 	{
+		System.out.println("searchPeersForFile()");
 		LinkedList<FileElement> remoteList = new LinkedList<FileElement>();
 		
 		//List of existings peers
@@ -293,7 +298,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 					}
 				}
 			}catch(RemoteException e){
-				System.out.println(e);
+				System.out.println("HERE I AM: " + e);
 			}catch(MalformedURLException e){
 				System.out.println(e);
 			}catch(NotBoundException e){
@@ -306,6 +311,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private byte[] downloadFileChunk(FileElement file, int chunkID, int chunkSize, String server)
 	{
+		System.out.println("downloadFileChunk");
 		byte[] filebuffer = null;
 		
 		try
@@ -386,32 +392,46 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return localList;
 	}
 	
-	public int join(Peers peers)
+	public int join()
 	{
 		//List of existings peers
-		Vector<Peer> peerList = peers.getPeers();
 		
-		try
-		{
-			//Search through all peers
-			//Add all external file frames to localList and localFiles
-			for (Peer p : peerList)
-			{
-				PeerInterface newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
-				System.out.println(newpeer.getIp());
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Vector<Peer> peerList = peers.getPeers();
+				try
+				{
+					
+					//Search through all peers
+					//Add all external file frames to localList and localFiles
+					for (Peer p : peerList)
+					{
+						PeerInterface newpeer = null;
+						try{
+							newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
+							System.out.println("IP: " + newpeer.getIp());
+							
+							LinkedList<FileElement> tmpList = newpeer.returnList();
+							getNewFileFrames(tmpList);
+							downloadFiles();
+						}catch(RemoteException e){
+							
+						}
+						
+					}
 				
-				LinkedList<FileElement> tmpList = newpeer.returnList();
-				getNewFileFrames(tmpList);
-				downloadFiles();
+				}catch(MalformedURLException e){
+					
+				}catch(NotBoundException e){
+					
+				}
 			}
-
-		}catch(RemoteException e){
-			
-		}catch(MalformedURLException e){
-			
-		}catch(NotBoundException e){
-			
-		}
+		});
+		t.start();
+		
 	    
 		
 		//set state to connected

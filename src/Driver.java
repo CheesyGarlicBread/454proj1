@@ -78,7 +78,7 @@ public class Driver {
 			}else if(c.equals("query")){
 				returnCode = peer.query();			
 			}else if(c.equals("join")){
-				returnCode = peer.join(peer.getPeers());
+				returnCode = peer.join();
 			}else if(c.equals("leave")){
 				returnCode = peer.leave();
 			}else{
