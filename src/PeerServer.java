@@ -8,9 +8,10 @@ public class PeerServer implements Runnable{
 	private Registry registry; 
 	public void run(){
 		 try {
-			 System.out.println("Started Server " + pi.getIp() + " on port: " + pi.getPort());
+			 System.out.println("Starting Server " + pi.getIp() + " on port: " + pi.getPort());
 			 
 			 registry = java.rmi.registry.LocateRegistry.createRegistry(Integer.parseInt(pi.getPort()));
+			 
 		     Naming.rebind("rmi://"+pi.getIp()+":"+pi.getPort()+"/PeerService", pi);
 		 } catch (MalformedURLException e) {
 		     System.out.println("Malformed URL: " + e);

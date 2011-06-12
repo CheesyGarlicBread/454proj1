@@ -34,7 +34,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private State state; 
 	  
 	public Peer() throws java.rmi.RemoteException {
-		this("127.0.0.1","80");
+		this("localhost","10042");
 	}
 	
 	public Peer(String ip, String port) throws java.rmi.RemoteException {
@@ -130,7 +130,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			Arrays.fill(newElement.block_complete, false);
 			downloadFile(newElement);
 		}
-		
+
 		
 		//Take string filename
 		//Add to local peer
@@ -308,6 +308,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 					}
 				}
 			//}
+
 		}catch(RemoteException e){
 			
 		}catch(MalformedURLException e){
