@@ -369,6 +369,12 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int query(Status status)
 	{
+		try {
+			updateFileList();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
 		//Store the localList LinkedList global into the Status class instance
 		//This LinkedList stores all the onformation for all files locally
 		status.setLocalList(localList);
