@@ -1,8 +1,11 @@
 import java.rmi.*;
 import java.util.LinkedList;
+
+
 public interface PeerInterface extends java.rmi.Remote {
 	public String getIp() throws RemoteException;
-	public String getPort() throws RemoteException; 
+	public String getPort() throws RemoteException;
+	public byte getState() throws RemoteException;
 	public void updateFileList() throws RemoteException;
 	//public byte[] downloadFile(String filename) throws RemoteException;
 	//public byte[] downloadFile(String filename) throws RemoteException;
