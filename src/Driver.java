@@ -87,7 +87,8 @@ public class Driver {
 					System.out.println("No filename specified");
 				}
 			}else if(c.equals("query")){
-				returnCode = peer.query();			
+				Status status = new Status();
+				returnCode = peer.query(status);			
 			}else if(c.equals("join")){
 				returnCode = peer.join();
 			}else if(c.equals("leave")){

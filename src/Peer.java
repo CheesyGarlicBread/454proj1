@@ -370,14 +370,32 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return (int)file.length();
 	}
 	
-	public int query()
+	public int query(Status status)
 	{
+		//Store the localList LinkedList global into the Status class instance
+		//This LinkedList stores all the onformation for all files locally
+		status.setLocalList(localList);
+		
 		//Populate parameter status with details for each file
 		//1. The fraction of the file that is available locally
 		//2. The fraction of the file that is available in the system
 		//3. The least replication level
 		//4. The weighted least-replication level
-		System.out.println(status.toString());
+		System.out.println("QUERY STATUS REQUEST");
+		System.out.println("Number of Local Files: " + status.numberOfFiles());
+		
+		System.out.println("File Details:");
+		System.out.println("=========================================");
+		for( String file : localFiles)
+		{
+			System.out.println("Filename: " + file);
+			System.out.println("Fraction of file available locally: " + status.fractionPresentLocally(file));
+			System.out.println("Fraction of file available in system: " + status.fractionPresent(file));
+			System.out.println("Least Replication Level: " + status.minimumReplicationLevel(file));
+			System.out.println("Average Replication Level: " + status.averageReplicationLevel(file));
+			System.out.println("=========================================");
+		}
+		
 		return 0;
 	}
 	
@@ -429,6 +447,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		//set state
 		this.state = DISCONNECTED;
+		
+		notifyPeersFileUpdate();
 		
 		//let everyone know you're leaving
 		
