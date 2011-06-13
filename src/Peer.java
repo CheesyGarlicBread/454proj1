@@ -26,6 +26,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
     private Status status;    
 	private String ip;
 	private String port;
+	private String downloadFolder;
 	private Vector<String> localFiles = new Vector<String>();
 	private boolean isDownloading = false;
 	
@@ -38,16 +39,17 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private byte state; 
 	  
 	public Peer() throws java.rmi.RemoteException {
-		this("localhost","10042");
+		this("localhost","10042", "");
 	}
 	
-	public Peer(String ip, String port) throws java.rmi.RemoteException {
+	public Peer(String ip, String port,String downloadFolder) throws java.rmi.RemoteException {
 		super();
 		this.status = new Status();
 		this.peers = new Peers();		
 		this.ip = ip;
 		this.port = port;
 		this.state = DISCONNECTED;
+		this.downloadFolder = downloadFolder;
 	}
 	
 	public String getIp() {
@@ -188,7 +190,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		//System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
-		File newfile = new File(file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
+		File newfile = new File(downloadFolder + file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
 		//System.out.println("saving file to " + file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
 		RandomAccessFile output = null;
 		
