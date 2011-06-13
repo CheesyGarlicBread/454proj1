@@ -228,7 +228,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 							//Download this chunk
 
 							//System.out.println("Downloading file from: " + e.currentServer);
-							System.out.println("writing to " + i*chunkSize);
+							//System.out.println("writing to " + i*chunkSize);
 							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
 							file.block_complete[i] = true;
 							
@@ -331,7 +331,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public byte[] uploadFileChunk(String filename, int offset, int length)
 	{
-		
 		//System.out.println("Upload requested");
 		try
 		{
@@ -462,35 +461,43 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 
 	public void updateFileList() throws RemoteException
 	{
-		//System.out.println("updateFileList()");
-		Vector<Peer> peerList = peers.getPeers();
-		try
-		{
-			//Search through all peers
-			//Add all external file frames to localList and localFiles
-			for (Peer p : peerList)
-			{
-				PeerInterface newpeer = null;
-				try{
-					newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
-					if(newpeer.getState() == CONNECTED){
-						//System.out.println("IP: " + newpeer.getIp());
-					
-						LinkedList<FileElement> tmpList = newpeer.returnList();
-						getNewFileFrames(tmpList);
-						downloadFiles();
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				//System.out.println("updateFileList()");
+				Vector<Peer> peerList = peers.getPeers();
+				try
+				{
+					//Search through all peers
+					//Add all external file frames to localList and localFiles
+					for (Peer p : peerList)
+					{
+						PeerInterface newpeer = null;
+						try{
+							newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
+							if(newpeer.getState() == CONNECTED){
+								//System.out.println("IP: " + newpeer.getIp());
+							
+								LinkedList<FileElement> tmpList = newpeer.returnList();
+								getNewFileFrames(tmpList);
+								downloadFiles();
+							}
+						}catch(RemoteException e){
+							
+						}
+						
 					}
-				}catch(RemoteException e){
+				
+				}catch(MalformedURLException e){
+					
+				}catch(NotBoundException e){
 					
 				}
 				
 			}
-		
-		}catch(MalformedURLException e){
-			
-		}catch(NotBoundException e){
-			
-		}
+		});
+		t.start();
 		
 	}
 

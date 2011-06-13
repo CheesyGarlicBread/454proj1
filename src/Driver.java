@@ -28,7 +28,8 @@ public class Driver {
 			peer = new Peer(address,args[1]);
 			peer.getPeers().initialize(args[0], args[1]);
 			peerServer = new PeerServer(peer);
-			
+			Thread t = new Thread(peerServer);
+			t.start();
 		}catch(RemoteException e){
 			System.out.println("Remote connection issue.");			
 		} catch (UnknownHostException e) {

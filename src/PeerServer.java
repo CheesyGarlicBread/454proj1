@@ -3,7 +3,7 @@ import java.rmi.*;
 import java.rmi.registry.Registry;
 
 
-public class PeerServer{
+public class PeerServer implements Runnable{
 	private PeerInterface pi;
 	private Registry registry; 
 
@@ -26,6 +26,12 @@ public class PeerServer{
 
 	public PeerServer(PeerInterface p){
 		pi = p;
+		
+	}
+
+	@Override
+	public void run() {
+
 		try {
 			System.out.println("Starting Server " + pi.getIp() + " on port: " + pi.getPort());
 			 
