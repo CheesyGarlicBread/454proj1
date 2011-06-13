@@ -168,8 +168,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
-		File newfile = new File(file.filename.substring(file.filename.lastIndexOf("\\"),file.filename.length()));
-
+		File newfile = new File(file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
+		System.out.println("saving file to " + file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
 		RandomAccessFile output = null;
 		
 		try {
@@ -320,15 +320,17 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		{
 			//Create a byte buffer of size: 
 			File file = new File(filename);
-			byte buffer[] = new byte[length];
-
+			
+			byte buffer[] = null;
 			RandomAccessFile input = new RandomAccessFile(file,"r");
 			input.seek(offset);
 			if ((offset+length) > file.length()){
+				 buffer = new byte[(int)(file.length()-offset)];
 				input.readFully(buffer,0,(int)(file.length()-offset));
 			}
 			else
 			{
+				buffer = new byte[length];
 				input.readFully(buffer, 0, length);
 			}
 			
