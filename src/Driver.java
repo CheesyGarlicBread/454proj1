@@ -35,6 +35,17 @@ public class Driver {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		//share folder
+		File folder = new File("c:/tmp");
+	    File[] listOfFiles = folder.listFiles();
+
+	    for (int i = 0; i < listOfFiles.length; i++) {
+	      if (listOfFiles[i].isFile()) {	    	  
+	        peer.insert("C:\\tmp\\"+listOfFiles[i].getName());
+	      }
+	    }
+		
 		//keep reading input
 		while(true){
 			System.out.println("\nPlease enter a command:");
