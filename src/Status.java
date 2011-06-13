@@ -41,7 +41,8 @@ public class Status
 				break;
 			}
 		}
-		return (count/size);
+		double fraction = (double)count/(double)size;
+		return fraction;
 	}
 	
 	public double fractionPresent(String filename)
@@ -63,7 +64,7 @@ public class Status
 				break;
 			}
 		}
-		return (count/size);
+		return (double)count/(double)size;
 	}
 	
 	public int minimumReplicationLevel(String filename)
@@ -102,7 +103,7 @@ public class Status
 				break;
 			}
 		}
-		return (sumVals / count);
+		return (double)sumVals / (double)count;
 	}
 	
 	public String toString()

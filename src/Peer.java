@@ -27,7 +27,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private String ip;
 	private String port;
 	private Vector<String> localFiles = new Vector<String>();
-	
+	private boolean isDownloading = false;
 	
 	private LinkedList<FileElement> localList = new LinkedList<FileElement>();
 	
@@ -158,6 +158,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private void downloadFiles()
 	{
+		if(isDownloading)
+		{
+			return;
+		}
 		//If there is at least one missing chunk from the file 'e', attempt to download file 'e'
 		for (FileElement e : localList)
 		{
@@ -169,7 +173,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				if (e.block_complete[i] == false)
 				{
 					//System.out.println(e.currentServer);
+					isDownloading = true;
 					downloadFile(e);
+					isDownloading = false;
 					break;
 				}
 			}
@@ -487,13 +493,14 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 							
 								LinkedList<FileElement> tmpList = newpeer.returnList();
 								getNewFileFrames(tmpList);
-								downloadFiles();
+								
 							}
 						}catch(RemoteException e){
 							
 						}
 						
 					}
+					downloadFiles();
 				
 				}catch(MalformedURLException e){
 					
