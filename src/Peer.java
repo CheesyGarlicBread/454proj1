@@ -423,6 +423,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//Notify all peers to check for new files
 		notifyPeersFileUpdate();
 		
+		
 		return 0;
 	}
 	
