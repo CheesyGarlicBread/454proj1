@@ -230,7 +230,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 							//Download this chunk
 
 							//System.out.println("Downloading file from: " + e.currentServer);
-							System.out.println("writing to " + i*chunkSize);
+							//System.out.println("writing to " + i*chunkSize);
 							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
 							file.block_complete[i] = true;
 							
@@ -372,6 +372,12 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int query(Status status)
 	{
+		try {
+			updateFileList();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
 		//Store the localList LinkedList global into the Status class instance
 		//This LinkedList stores all the onformation for all files locally
 		status.setLocalList(localList);
