@@ -112,6 +112,15 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		localList.add(newElement);
 		
 		
+		notifyPeersFileUpdate();
+		
+		System.out.println("New file " + filename + " has been inserted successfully.");
+		
+		return 0;
+	}
+	
+	private void notifyPeersFileUpdate()
+	{
 		//Notify all other peers in peerlist that a new file has been added
 		//List of existings peers
 		Vector<Peer> peerList = peers.getPeers();
@@ -138,10 +147,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				e.printStackTrace();
 			}
 		}
-		
-		System.out.println("New file " + filename + " has been inserted successfully.");
-		
-		return 0;
+	
 	}
 	
 	private void downloadFiles()
@@ -369,8 +375,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public int join()
 	{
-		//List of existings peers
-		
 		Thread t = new Thread(new Runnable() {
 			
 			@Override
@@ -384,16 +388,12 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		});
 		t.start();
 		
-	    
-		
-		//set state to connected
+		//Set state to connected
 		this.state = State.connected;
 		
-		//let everyone know that you've connected
+		//Notify all peers to check for new files
+		notifyPeersFileUpdate();
 		
-		//Attempt to join set
-		//Push all local files
-		//Pull all files that don't exist in set
 		return 0;
 	}
 	
@@ -401,12 +401,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		for (FileElement e : tmpList)
 		{
-			if (localFiles.contains(e.filename))
-			{
-				//Already have this filename
-				//downloadFile(e);
-			}
-			else
+			if (!localFiles.contains(e.filename))
 			{
 				//Insert FileElement object into linkedlist and filename vector
 				Arrays.fill(e.block_complete, false);

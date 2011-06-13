@@ -1,6 +1,5 @@
 import java.io.Serializable;
 import java.util.LinkedList;
-import java.util.Vector;
 
 public class FileElement implements Serializable
 {
@@ -15,8 +14,8 @@ public class FileElement implements Serializable
 	public FileElement(String filename, long length, int chunkSize, String server) {
 		this.filename = filename;
 		this.filesize = length;
-		this.block_complete = new boolean[(int) (Math.ceil(length / chunkSize))];
-		this.block_available = new int[(int) (Math.ceil(length / chunkSize))];
+		this.block_complete = new boolean[(int) (Math.ceil(length / chunkSize) + 1)];
+		this.block_available = new int[(int) (Math.ceil(length / chunkSize) + 1)];
 		this.currentServer = server;
 		this.remoteList = null;
 	}
