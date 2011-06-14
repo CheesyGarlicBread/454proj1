@@ -12,7 +12,7 @@ public class Peers {
     // This file should be available on every machine on which a peer is started,
     // though you should exit gracefully if it is absent or incorrectly formatted.
     // After execution of this method, the _peers should be present.
-    public int initialize(String peersFile, String localport)
+    public int initialize(String peersFile, String localport, String downloadFolder)
     {
     	try{
 			BufferedReader br = new BufferedReader(new FileReader(peersFile));
@@ -25,7 +25,7 @@ public class Peers {
 				String port = st.nextToken();
 				if(!((localaddress.equals(ip) || localhostname.equals(ip)) && localport.equals(port))){
 					System.out.println("added peer to peer list: " + ip + " with port " + port);
-					Peer p = new Peer(ip, port);
+					Peer p = new Peer(ip, port, downloadFolder);
 					peers.add(p);
 				}
 			}

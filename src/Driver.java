@@ -16,17 +16,17 @@ public class Driver {
 	 */
 	public static void main(String[] args)
 	{
-		if(args.length < 2){
+		if(args.length < 3){
 			System.out.println("Didn't specify peers file or port");
-			System.out.println("Arguments specification: <peersfile> <port #>");
+			System.out.println("Arguments specification: <peersfile> <port #> <download folder>");
 			System.exit(1);
 		}
 		System.out.println("Started Client");
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
 			String address = InetAddress.getLocalHost().getHostAddress();
-			peer = new Peer(address,args[1]);
-			peer.getPeers().initialize(args[0], args[1]);
+			peer = new Peer(address,args[1],args[2]);
+			peer.getPeers().initialize(args[0], args[1],args[2]);
 			peerServer = new PeerServer(peer);
 			Thread t = new Thread(peerServer);
 			t.start();
@@ -39,12 +39,13 @@ public class Driver {
 		
 		//share folder
 		try{
-			File folder = new File("c:/tmp");
+			File folder = new File(args[2]);
 			File[] listOfFiles = folder.listFiles();
 
 		    for (int i = 0; i < listOfFiles.length; i++) {
-		      if (listOfFiles[i].isFile()) {	    	  
-		        peer.insert("C:\\tmp\\"+listOfFiles[i].getName());
+		      if (listOfFiles[i].isFile()) {
+		    	  System.out.println(args[2]+listOfFiles[i].getName());
+		        peer.insert(args[2]+listOfFiles[i].getName());
 		      }
 		    }
 		}catch(NullPointerException e){}
