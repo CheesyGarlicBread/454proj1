@@ -243,7 +243,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 								System.out.println(f);
 							}
 						}
-						
 					}
 
 					
@@ -264,11 +263,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-
-						
-					
 				}
 			}
+			//Get the next least available chunk
 			lowestnum++;
 		}
 		
@@ -336,6 +333,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			if(newpeer.getState() == CONNECTED){
 				//	Chunk buffer for downloaded data
 				filebuffer = newpeer.uploadFileChunk(file.filename, chunkID*chunkSize, chunkSize);
+				
+				//Notify peer that file transfer is complete
+				newpeer.uploadComplete();
 			}
 		
 		}catch(RemoteException e){
@@ -354,7 +354,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public byte[] uploadFileChunk(String filename, int offset, int length)
 	{
-		isUploading++;
+		
 		//System.out.println("Upload requested");
 		try
 		{
@@ -374,7 +374,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				input.readFully(buffer, 0, length);
 			}
 			
-			isUploading--;
+			//Keep track of how many chunks are being uploaded at a time
+			isUploading++;
 			
 			//Return byte array to caller
 			return (buffer);
@@ -398,6 +399,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return isUploading;
 	}
 	
+	public void uploadComplete()
+	{
+		isUploading--;
+	}
+	
 	public int query(Status status)
 	{
 		try {
@@ -417,6 +423,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//4. The weighted least-replication level
 		System.out.println("QUERY STATUS REQUEST");
 		System.out.println("Number of Local Files: " + status.numberOfFiles());
+		System.out.println("Number of Current Chunk Uploads: " + isUploading);
 		
 		System.out.println("File Details:");
 		System.out.println("=========================================");
