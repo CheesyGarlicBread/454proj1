@@ -12,4 +12,5 @@ public interface PeerInterface extends java.rmi.Remote {
 	public byte[] uploadFileChunk(String filename, int offset, int length) throws RemoteException;
 	public int filesize(String filename) throws RemoteException;
 	public LinkedList<FileElement> returnList() throws RemoteException;
+	public int queryUploadNumber() throws RemoteException;
 }

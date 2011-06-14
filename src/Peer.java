@@ -29,6 +29,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private Vector<String> localFiles = new Vector<String>();
 	private boolean isDownloading = false;
 	
+	private int isUploading = 0;
+	
 	private LinkedList<FileElement> localList = new LinkedList<FileElement>();
 	
 	final byte CONNECTED = 0;
@@ -181,8 +183,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			}
 		}
 	}
-	
-	
 
 	private int downloadFile(FileElement file)
 	{
@@ -196,20 +196,6 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			output = new RandomAccessFile(newfile, "rw");
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
-		}
-
-		//For each chunk of the local file
-		for (int i = 0; i < file.block_available.length; i++)
-		{
-			//For each copy of the file on a remote peer
-			for (FileElement e : file.remoteList)
-			{
-				//Incriment block_availability on local file
-				if(e.block_complete[i] == true)
-				{
-					file.block_available[i]++;
-				}
-			}
 		}
 
 		//Chunk buffer for downloaded data
@@ -226,30 +212,59 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				//Download chunk if the chunk has a low availability and is not complete locally
 				if((file.block_available[i] == lowestnum) && (file.block_complete[i] == false))
 				{
+					FileElement minNumUploadsFileElement = null;
+					
+					int minNumUploads = 1000;
 					//Find a server that has this particular chunk
 					for (FileElement e : file.remoteList)
 					{
 						if (e.block_complete[i] == true)
 						{
-							//Download this chunk
-
-							//System.out.println("Downloading file from: " + e.currentServer);
-							//System.out.println("writing to " + i*chunkSize);
-							filebuffer = downloadFileChunk(file, i, chunkSize, e.currentServer);
-							file.block_complete[i] = true;
-							
-							//System.out.println(filebuffer);
-							//System.out.println("Downloading Chunk: " + i);
-							
-							try {
-								output.seek(i*chunkSize);
-								output.write(filebuffer);
-							} catch (IOException e1) {
-								e1.printStackTrace();
+							try
+							{
+								//Connect to peer to determine how many files it is currently uploading
+								PeerInterface peer = (PeerInterface)Naming.lookup(e.currentServer);
+								int numUploads  = peer.queryUploadNumber();
+								
+								//Store the peer who is currently uploading the fewest number of file chunks
+								if (numUploads < minNumUploads)
+								{
+									minNumUploads = numUploads;
+									minNumUploadsFileElement = e;
+								}
+								
+							}catch(RemoteException f){
+								System.out.println(f);
+							}catch(MalformedURLException f){
+								System.out.println(f);
+							}catch(NotBoundException f){
+								System.out.println(f);
 							}
-
 						}
+						
 					}
+
+					
+
+					//System.out.println("Downloading file from: " + e.currentServer);
+					//System.out.println("writing to " + i*chunkSize);
+					
+					//Download this chunk from minNumUploadsFileElement
+					filebuffer = downloadFileChunk(file, i, chunkSize, minNumUploadsFileElement.currentServer);
+					file.block_complete[i] = true;
+					
+					//System.out.println(filebuffer);
+					//System.out.println("Downloading Chunk: " + i);
+					
+					try {
+						output.seek(i*chunkSize);
+						output.write(filebuffer);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+
+						
+					
 				}
 			}
 			lowestnum++;
@@ -337,6 +352,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	public byte[] uploadFileChunk(String filename, int offset, int length)
 	{
+		isUploading++;
 		//System.out.println("Upload requested");
 		try
 		{
@@ -356,6 +372,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				input.readFully(buffer, 0, length);
 			}
 			
+			isUploading--;
+			
 			//Return byte array to caller
 			return (buffer);
 			
@@ -371,6 +389,11 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//Return size of local filename
 		File file = new File(filename);
 		return (int)file.length();
+	}
+	
+	public int queryUploadNumber()
+	{
+		return isUploading;
 	}
 	
 	public int query(Status status)
@@ -450,6 +473,22 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				localList.add(e);
 				localFiles.add(e.filename);
 			}
+			else
+			{
+				//For each chunk of the local file
+				for (int i = 0; i < e.block_available.length; i++)
+				{
+					//For each copy of the file on a remote peer
+					for (FileElement f : e.remoteList)
+					{
+						//Incriment block_availability on local file
+						if(f.block_complete[i] == true)
+						{
+							e.block_available[i]++;
+						}
+					}
+				}	
+			}
 		}
 	}
 	
@@ -500,6 +539,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 						}
 						
 					}
+
 					downloadFiles();
 				
 				}catch(MalformedURLException e){
