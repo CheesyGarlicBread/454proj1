@@ -470,6 +470,18 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		return 0;
 	}
 	
+	private void updateCurrentFileFrames()
+	{
+		for (FileElement e : localList)
+		{
+			//Find servers that have this file
+			e.remoteList = searchPeersForFile(e.filename);
+			
+			//Find availability of block on the network
+			findBlockAvailability(e);
+		}
+	}
+	
 	private void getNewFileFrames(LinkedList<FileElement> tmpList)
 	{
 		//Files from new servers
@@ -551,6 +563,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 								//System.out.println("IP: " + newpeer.getIp());
 							
 								LinkedList<FileElement> tmpList = newpeer.returnList();
+								updateCurrentFileFrames();
 								getNewFileFrames(tmpList);
 								
 							}
