@@ -480,6 +480,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				//Create an instance of FileElement class to store the attributes for the new file
 				FileElement newElement = new FileElement(e.filename, e.filesize, chunkSize, "rmi://"+this.getIp()+":"+this.getPort()+"/PeerService");
 				
+				//Find servers that have this file
+				newElement.remoteList = searchPeersForFile(newElement.filename);
+				
 				//Insert FileElement object into linkedlist and filename vector
 				Arrays.fill(newElement.block_complete, false);
 				Arrays.fill(newElement.block_available, 0);
