@@ -278,7 +278,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//System.out.println("Finished downloadFile()");
 		return 0;
 	}
-	
+
 	//Returns a link list of the FileElements from all peers
 	private LinkedList<FileElement> searchPeersForFile(String filename)
 	{
@@ -472,6 +472,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private void getNewFileFrames(LinkedList<FileElement> tmpList)
 	{
+		//Files from new servers
 		for (FileElement e : tmpList)
 		{
 			if (!localFiles.contains(e.filename))
@@ -479,24 +480,34 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				//Insert FileElement object into linkedlist and filename vector
 				Arrays.fill(e.block_complete, false);
 				Arrays.fill(e.block_available, 0);
+				e.currentServer = "rmi://"+this.getIp()+":"+this.getPort()+"/PeerService";
 				localList.add(e);
 				localFiles.add(e.filename);
+				findBlockAvailability(e);
+				
 			}
 			else
 			{
-				//For each chunk of the local file
-				for (int i = 0; i < e.block_available.length; i++)
+				findBlockAvailability(e);
+			}
+		}
+	}
+	
+	private void findBlockAvailability(FileElement e)
+	{
+		//Reset Block Count
+		Arrays.fill(e.block_available, 0);
+		
+		for (int i = 0; i < e.block_available.length; i++)
+		{
+			//For each copy of the file on a remote peer
+			for (FileElement f : e.remoteList)
+			{
+				//Incriment block_availability on local file
+				if(f.block_complete[i] == true)
 				{
-					//For each copy of the file on a remote peer
-					for (FileElement f : e.remoteList)
-					{
-						//Incriment block_availability on local file
-						if(f.block_complete[i] == true)
-						{
-							e.block_available[i]++;
-						}
-					}
-				}	
+					e.block_available[i]++;
+				}
 			}
 		}
 	}
