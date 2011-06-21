@@ -135,8 +135,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		
 		Vector<Peer> peerList = peers.getPeers();
 		
-		for (Peer p : peerList)
+		
+		for (int i = 0; i < peerList.size(); i++)
 		{
+			Peer p = peerList.get(i);
 			try {
 				//Connect to remote host
 				PeerInterface newpeer = null;
@@ -290,8 +292,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		Vector<Peer> peerList = peers.getPeers();
 		
 		//Search through each peer in peerList
-		for (Peer p : peerList)
+		
+		for (int i = 0; i < peerList.size(); i++)
 		{
+			Peer p = peerList.get(i);
 			try
 			{
 				PeerInterface peer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
@@ -300,8 +304,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 					LinkedList<FileElement> tmpList = peer.returnList();
 					
 					//For each file in the remote file list, search for files with the same name as filename
-					for(FileElement e : tmpList)
+					
+					for(int j = 0; j < tmpList.size(); j++)
 					{
+						FileElement e = tmpList.get(j);
 						if (e.filename.equals(filename))
 						{
 							//Add all files with matching filename to the new LinkedList object
@@ -428,8 +434,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		
 		System.out.println("File Details:");
 		System.out.println("=========================================");
-		for( String file : localFiles)
+		
+		for(int i = 0; i < localFiles.size(); i++)
 		{
+			String file = localFiles.get(i);
 			System.out.println("Filename: " + file);
 			System.out.println("Fraction of file available locally: " + status.fractionPresentLocally(file));
 			System.out.println("Fraction of file available in system: " + status.fractionPresent(file));
@@ -473,8 +481,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	
 	private void updateCurrentFileFrames()
 	{
-		for (FileElement e : localList)
+		
+		for (int i = 0; i < localList.size(); i++ )
 		{
+			FileElement e = localList.get(i);
 			//Find servers that have this file
 			e.remoteList = searchPeersForFile(e.filename);
 			
@@ -486,8 +496,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	private void getNewFileFrames(LinkedList<FileElement> tmpList)
 	{
 		//Files from new servers
-		for (FileElement e : tmpList)
+		
+		for (int i = 0; i < tmpList.size(); i++)
 		{
+			FileElement e = tmpList.get(i);
 			if (!localFiles.contains(e.filename))
 			{
 				//Create an instance of FileElement class to store the attributes for the new file
@@ -514,8 +526,10 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		for (int i = 0; i < newElement.block_available.length; i++)
 		{
 			//For each copy of the file on a remote peer
-			for (FileElement f : newElement.remoteList)
+			
+			for (int j = 0; j < newElement.remoteList.size(); j++)
 			{
+				FileElement f = newElement.remoteList.get(j);
 				//Incriment block_availability on local file
 				if(f.block_complete[i] == true)
 				{
@@ -555,8 +569,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 				{
 					//Search through all peers
 					//Add all external file frames to localList and localFiles
-					for (Peer p : peerList)
+					for(int i = 0; i < peerList.size(); i++)
 					{
+						Peer p = peerList.get(i);
 						PeerInterface newpeer = null;
 						try{
 							newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
