@@ -195,7 +195,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		//System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
 		File newfile = new File(downloadFolder + file.filename);
-		System.out.println("saving file to " + file.filename);
+		//System.out.println("saving file to " + file.filename);
 		RandomAccessFile output = null;
 		
 		try {
