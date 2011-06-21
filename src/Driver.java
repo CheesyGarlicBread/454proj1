@@ -39,6 +39,7 @@ public class Driver {
 		
 		//share folder
 		try{
+			System.out.println("looking for " + args[2]);
 			File folder = new File(args[2]);
 			File[] listOfFiles = folder.listFiles();
 
@@ -48,7 +49,10 @@ public class Driver {
 		        peer.insert(args[2]+listOfFiles[i].getName());
 		      }
 		    }
-		}catch(NullPointerException e){}
+		}catch(NullPointerException e){
+			System.out.println("Couldnt find folder");
+			
+		}
 	    
 		
 		//keep reading input

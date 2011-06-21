@@ -93,7 +93,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	public int insert(String filename)
 	{	
 		File file = new File(filename);
-		
+		filename = file.getName();
 		if (!file.exists())
 		{
 			System.out.println("ERROR: File does not exist!");
@@ -167,8 +167,9 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			return;
 		}
 		//If there is at least one missing chunk from the file 'e', attempt to download file 'e'
-		for (FileElement e : localList)
+		for (int j = 0; j < localList.size(); j++)
 		{
+			FileElement e = localList.get(j);
 			e.remoteList = searchPeersForFile(e.filename);
 			
 			//System.out.println("Checking " + e.filename + " file for local completeness");
@@ -190,8 +191,8 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	{
 		//System.out.println("downloadFile()");
 		//RandomAccessFile to write chunks to
-		File newfile = new File(downloadFolder + file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
-		//System.out.println("saving file to " + file.filename.substring(file.filename.lastIndexOf("\\")+1,file.filename.length()));
+		File newfile = new File(downloadFolder + file.filename);
+		System.out.println("saving file to " + file.filename);
 		RandomAccessFile output = null;
 		
 		try {
@@ -359,7 +360,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		try
 		{
 			//Create a byte buffer of size: 
-			File file = new File(filename);
+			File file = new File(downloadFolder + filename);
 			
 			byte buffer[] = null;
 			RandomAccessFile input = new RandomAccessFile(file,"r");
@@ -390,7 +391,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 	public int filesize(String filename)
 	{
 		//Return size of local filename
-		File file = new File(filename);
+		File file = new File(downloadFolder + filename);
 		return (int)file.length();
 	}
 	
