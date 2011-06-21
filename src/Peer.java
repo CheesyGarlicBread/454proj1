@@ -120,6 +120,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 		localList.add(newElement);
 		
 		if (state == CONNECTED){
+			System.out.println("Notifying peers of update");
 			notifyPeersFileUpdate();
 		}
 		
@@ -384,6 +385,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 			//Keep track of how many chunks are being uploaded at a time
 			isUploading++;
 			
+			input.close();
 			//Return byte array to caller
 			return (buffer);
 			
@@ -576,7 +578,7 @@ public class Peer extends java.rmi.server.UnicastRemoteObject implements PeerInt
 						try{
 							newpeer = (PeerInterface)Naming.lookup("rmi://"+p.getIp()+":"+p.getPort()+"/PeerService");
 							if(newpeer.getState() == CONNECTED){
-								//System.out.println("IP: " + newpeer.getIp());
+								System.out.println("Updating IP: " + newpeer.getIp());
 							
 								LinkedList<FileElement> tmpList = newpeer.returnList();
 								updateCurrentFileFrames();
